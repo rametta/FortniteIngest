@@ -1,7 +1,35 @@
+'use strict'
+
 require('dotenv').config()
 const axios = require('axios')
 const Rx = require('rxjs/Rx')
 const admin = require('firebase-admin')
+const winston = require('winston')
+const fs = require('fs')
+
+const env = process.env.NODE_ENV || 'development'
+
+// Create the logs directory if it does not exist
+const logsDir = process.env.LOGS_DIR
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir)
+}
+
+const tsFormat = () => new Date().toString()
+
+const logger = new winston.Logger({
+  transports: [
+    new winston.transports.Console({
+      timestamp: tsFormat,
+      colorize: true
+    }),
+    new winston.transports.File({
+      filename: `${logsDir}/results.log`,
+      timestamp: tsFormat,
+      level: env === 'development' ? 'debug' : 'info'
+    })
+  ]
+})
 
 // Constants
 const firebaseServiceAccount = require('./firebase-admin-creds.json')
@@ -16,7 +44,7 @@ admin.initializeApp({
   credential: admin.credential.cert(firebaseServiceAccount),
   databaseURL: firebaseDbUrl,
   databaseAuthVariableOverride: {
-    uid: 'ingest'
+    uid: process.env.FIREBASE_AUTH_OVERRIDE
   }
 })
 
@@ -43,7 +71,7 @@ users$
   .filter(({ data }) => data.error === undefined)
   .map(({ data }) => processUserData(data))
   .retry()
-  .subscribe()
+  .subscribe({ error: () => logger.error(`Fetch failed`) })
 
 // Helper for accessing data from 3rd party api
 const getUserData$ = (user) => {
@@ -57,5 +85,5 @@ const processUserData = (data) => {
   const username = data.epicUserHandle
   data.fetchTime = new Date().toISOString()
   db.ref(`/data/${username}`).push(data)
-  console.log(`${username} processed: ${new Date().toString()}`)
+  logger.info(`${username} processed`)
 }
