@@ -1,3 +1,4 @@
+require('dotenv').config()
 const axios = require('axios')
 const Rx = require('rxjs/Rx')
 const admin = require('firebase-admin')
@@ -6,8 +7,8 @@ const admin = require('firebase-admin')
 const firebaseServiceAccount = require('./firebase-admin-creds.json')
 const firebaseDbUrl = 'https://fortnite-ingest.firebaseio.com/'
 const API = 'https://api.fortnitetracker.com/v1/profile/xbox/'
-const headers = { 'TRN-Api-Key': '3fdd40fe-6913-4b08-8806-d61c600680a9' }
-const userDelayInterval = 2000 // api limit
+const headers = { 'TRN-Api-Key': process.env.TRN_API_KEY }
+const userDelayInterval = 3000 // api limit
 const refreshInterval = 10000
 
 // Connect to firebase
