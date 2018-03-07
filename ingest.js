@@ -7,7 +7,8 @@ const firebaseServiceAccount = require('./firebase-admin-creds.json')
 const firebaseDbUrl = 'https://fortnite-ingest.firebaseio.com/'
 const API = 'https://api.fortnitetracker.com/v1/profile/xbox/'
 const headers = { 'TRN-Api-Key': '3fdd40fe-6913-4b08-8806-d61c600680a9' }
-const delayInterval = 2000
+const userDelayInterval = 2000 // api limit
+const refreshInterval = 10000
 
 // Connect to firebase
 admin.initializeApp({
@@ -23,35 +24,33 @@ const db = admin.database()
 // Get the users to ingest
 const users$ = Rx.Observable.create((observer) => {
   const userRef = db.ref('/users')
-  userRef.on('child_added', (snapshot) => {
-    const user = snapshot.val()
-    // const users = Object.keys(userMap).map((key) => userMap[key])
-    observer.next(user)
-    // startIngest(users)
+  userRef.on('value', (snapshot) => {
+    const usersMap = snapshot.val()
+    const users = Object.keys(usersMap).map((key) => usersMap[key])
+    observer.next(users)
   })
 })
 
-users$.subscribe({
-  next: (users) => console.log(users),
-  error: (err) => console.error('Could not retrieve users: ' + err),
-  complete: () => console.log('Users complete')
-})
+const schedule$ = Rx.Observable.interval(refreshInterval)
+
+users$
+  .switchMap((users) => schedule$, (users) => users)
+  .mergeAll()
+  .concatMap((user) => Rx.Observable.of(user).delay(userDelayInterval))
+  .mergeMap((user) => getUserData$(user))
+  .map((res) => res.data)
+  .retry()
+  .subscribe(
+    (data) => {
+      // TODO: process data here and save back to db
+      console.log(data.epicUserHandle)
+    },
+    (err) => console.error(err)
+  )
 
 // Helper for accessing data from 3rd party api
 const getUserData$ = (user) => {
   const url = API + user
   const promise = axios.get(url, { headers })
   return Rx.Observable.from(promise)
-}
-
-// Ingest user data from fortnite api
-const startIngest = (users) => {
-  Rx.Observable.from(users)
-    .concatMap((user) => Rx.Observable.of(user).delay(delayInterval))
-    .mergeMap((user) => getUserData$(user))
-    .map((res) => res.data)
-    .subscribe((res) => {
-      // TODO: Save back to db
-      console.log(res.accountId)
-    })
 }
