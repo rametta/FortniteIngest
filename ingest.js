@@ -9,7 +9,7 @@ const firebaseDbUrl = 'https://fortnite-ingest.firebaseio.com/'
 const API = 'https://api.fortnitetracker.com/v1/profile/xbox/'
 const headers = { 'TRN-Api-Key': process.env.TRN_API_KEY }
 const userDelayInterval = 3000 // api limit
-const refreshInterval = 10000
+const refreshInterval = 1000
 
 // Connect to firebase
 admin.initializeApp({
@@ -32,6 +32,7 @@ const users$ = Rx.Observable.create((observer) => {
   })
 })
 
+// Ingest data for users
 const schedule$ = Rx.Observable.interval(refreshInterval)
 
 users$
@@ -39,19 +40,22 @@ users$
   .mergeAll()
   .concatMap((user) => Rx.Observable.of(user).delay(userDelayInterval))
   .mergeMap((user) => getUserData$(user))
-  .map((res) => res.data)
+  .filter(({ data }) => data.error === undefined)
+  .map(({ data }) => processUserData(data))
   .retry()
-  .subscribe(
-    (data) => {
-      // TODO: process data here and save back to db
-      console.log(data.epicUserHandle)
-    },
-    (err) => console.error(err)
-  )
+  .subscribe()
 
 // Helper for accessing data from 3rd party api
 const getUserData$ = (user) => {
   const url = API + user
   const promise = axios.get(url, { headers })
   return Rx.Observable.from(promise)
+}
+
+// Data received processor and saver
+const processUserData = (data) => {
+  const username = data.epicUserHandle
+  data.fetchTime = new Date().toISOString()
+  db.ref(`/data/${username}`).push(data)
+  console.log(`${username} processed: ${new Date().toString()}`)
 }
