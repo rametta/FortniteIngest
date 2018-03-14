@@ -31,13 +31,15 @@ const logger = new winston.Logger({
   ]
 })
 
+logger.info(`App started`)
+
 // Constants
 const firebaseServiceAccount = require('./firebase-admin-creds.json')
 const firebaseDbUrl = 'https://fortnite-ingest.firebaseio.com/'
 const API = 'https://api.fortnitetracker.com/v1/profile/xbox/'
 const headers = { 'TRN-Api-Key': process.env.TRN_API_KEY }
-const userDelayInterval = 3000 // api limit
-const refreshInterval = 1000
+const USER_DELAY_INTERVAL = 3000 // api limit
+const REFRESH_INTERVAL = 3000
 
 // Connect to firebase
 admin.initializeApp({
@@ -55,23 +57,22 @@ const users$ = Rx.Observable.create((observer) => {
   const userRef = db.ref('/users')
   userRef.on('value', (snapshot) => {
     const usersMap = snapshot.val()
-    const users = Object.keys(usersMap).map((key) => usersMap[key])
+    const users = Object.values(usersMap)
     observer.next(users)
   })
 })
 
 // Ingest data for users
-const schedule$ = Rx.Observable.interval(refreshInterval)
+const timer$ = Rx.Observable.timer(0, REFRESH_INTERVAL)
 
-users$
-  .switchMap((users) => schedule$, (users) => users)
-  .mergeAll()
-  .concatMap((user) => Rx.Observable.of(user).delay(userDelayInterval))
+Rx.Observable.combineLatest(users$, timer$)
+  .mergeMap(([users]) => users)
+  .concatMap((users) => Rx.Observable.of(users).delay(USER_DELAY_INTERVAL))
   .mergeMap((user) => getUserData$(user))
   .filter(({ data }) => data.error === undefined)
   .map(({ data }) => processUserData(data))
   .retry()
-  .subscribe({ error: () => logger.error(`Fetch failed`) })
+  .subscribe()
 
 // Helper for accessing data from 3rd party api
 const getUserData$ = (user) => {
@@ -84,6 +85,11 @@ const getUserData$ = (user) => {
 const processUserData = (data) => {
   const username = data.epicUserHandle
   data.fetchTime = new Date().toISOString()
-  db.ref(`/data/${username}`).push(data)
-  logger.info(`${username} processed`)
+  db
+    .ref(`/data/${username}`)
+    .set(data)
+    .then(
+      () => logger.info(`${username} processed`),
+      () => logger.error(`${username} failed to process`)
+    )
 }
