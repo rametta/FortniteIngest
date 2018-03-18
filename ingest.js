@@ -38,8 +38,8 @@ const firebaseServiceAccount = require('./firebase-admin-creds.json')
 const firebaseDbUrl = 'https://fortnite-ingest.firebaseio.com/'
 const API = 'https://api.fortnitetracker.com/v1/profile/xbox/'
 const headers = { 'TRN-Api-Key': process.env.TRN_API_KEY }
-const USER_DELAY_INTERVAL = 3000 // api limit
-const REFRESH_INTERVAL = 3000
+const USER_DELAY_INTERVAL = process.env.USER_DELAY_INTERVAL || 3000
+const REFRESH_INTERVAL = process.env.REFRESH_INTERVAL || 3000
 
 // Connect to firebase
 admin.initializeApp({
@@ -84,18 +84,7 @@ const getUserData$ = (user) => {
 // Data received processor and saver
 const processUserData = (data) => {
   const username = data.epicUserHandle
-
-  const now = new Date()
-  const utc = new Date(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-    now.getUTCHours(),
-    now.getUTCMinutes(),
-    now.getUTCSeconds()
-  )
-
-  data.fetchTime = utc.toISOString()
+  data.fetchTime = toUTC(new Date()).toISOString()
 
   // Save a record of each match, use abbreviations to save storage room
   data.recentMatches.forEach((m) => {
@@ -104,7 +93,7 @@ const processUserData = (data) => {
       p: m.playlist, // playlist (gamemode)
       t: m.top1, // top1
       s: m.score, // score
-      d: m.dateCollected, // date
+      d: toUTC(new Date(m.dateCollected)).toISOString(), // date
       r: m.trnRating, // trnRating,
       c: m.trnRatingChange // rating change
     })
@@ -117,4 +106,15 @@ const processUserData = (data) => {
       () => logger.info(`${username} processed`),
       () => logger.error(`${username} failed to process`)
     )
+}
+
+const toUTC = (date) => {
+  return new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    date.getUTCHours(),
+    date.getUTCMinutes(),
+    date.getUTCSeconds()
+  )
 }
