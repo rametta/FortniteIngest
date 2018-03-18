@@ -88,15 +88,7 @@ const processUserData = (data) => {
 
   // Save a record of each match, use abbreviations to save storage room
   data.recentMatches.forEach((m) => {
-    db.ref(`/matches/${username}/${m.id}`).set({
-      k: m.kills, // kills
-      p: m.playlist, // playlist (gamemode)
-      t: m.top1, // top1
-      s: m.score, // score
-      d: toUTC(new Date(m.dateCollected)).toISOString(), // date
-      r: m.trnRating, // trnRating,
-      c: m.trnRatingChange // rating change
-    })
+    db.ref(`/matches/${username}/${m.id}`).set(compactMatch(m))
   })
 
   db
@@ -118,3 +110,20 @@ const toUTC = (date) => {
     date.getUTCSeconds()
   )
 }
+
+const compactMatch = (match) => ({
+  k: match.kills, // kills
+  p: match.playlist, // playlist (gamemode)
+  t1: match.top1, // top1
+  t3: match.top3, // top3
+  t5: match.top5, // top5
+  t6: match.top6, // top6
+  t10: match.top10, // top10
+  t12: match.top12, // top12
+  t25: match.top25, // top25
+  s: match.score, // score
+  m: match.minutesPlayed, // minutes played
+  d: toUTC(new Date(match.dateCollected)).toISOString(), // date
+  r: match.trnRating, // trnRating,
+  c: match.trnRatingChange // rating change
+})
