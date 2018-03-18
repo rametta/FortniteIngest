@@ -84,7 +84,32 @@ const getUserData$ = (user) => {
 // Data received processor and saver
 const processUserData = (data) => {
   const username = data.epicUserHandle
-  data.fetchTime = new Date().toISOString()
+
+  const now = new Date()
+  const utc = new Date(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    now.getUTCHours(),
+    now.getUTCMinutes(),
+    now.getUTCSeconds()
+  )
+
+  data.fetchTime = utc.toISOString()
+
+  // Save a record of each match, use abbreviations to save storage room
+  data.recentMatches.forEach((m) => {
+    db.ref(`/matches/${username}/${m.id}`).set({
+      k: m.kills, // kills
+      p: m.playlist, // playlist (gamemode)
+      t: m.top1, // top1
+      s: m.score, // score
+      d: m.dateCollected, // date
+      r: m.trnRating, // trnRating,
+      c: m.trnRatingChange // rating change
+    })
+  })
+
   db
     .ref(`/data/${username}`)
     .set(data)
