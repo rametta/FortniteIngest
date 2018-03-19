@@ -112,18 +112,19 @@ const toUTC = (date) => {
 }
 
 const compactMatch = (match) => ({
-  k: match.kills, // kills
-  p: match.playlist, // playlist (gamemode)
-  t1: match.top1, // top1
-  t3: match.top3, // top3
-  t5: match.top5, // top5
-  t6: match.top6, // top6
-  t10: match.top10, // top10
-  t12: match.top12, // top12
-  t25: match.top25, // top25
-  s: match.score, // score
-  m: match.minutesPlayed, // minutes played
-  d: toUTC(new Date(match.dateCollected)).toISOString(), // date
-  r: match.trnRating, // trnRating,
-  c: match.trnRatingChange // rating change
+  mid: match.id,
+  k: match.kills,
+  p: match.playlist,
+  t1: match.top1,
+  t3: match.top3,
+  t5: match.top5,
+  t6: match.top6,
+  t10: match.top10,
+  t12: match.top12,
+  t25: match.top25,
+  s: match.score,
+  m: match.minutesPlayed,
+  d: toUTC(new Date(match.dateCollected)).toISOString(),
+  r: match.trnRating,
+  c: match.trnRatingChange
 })
