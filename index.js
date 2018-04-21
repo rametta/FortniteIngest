@@ -8,7 +8,8 @@ const {
   concatMap,
   map,
   retry,
-  delay
+  delay,
+  tap
 } = require('rxjs/operators')
 const { combineLatest } = require('rxjs/observable/combineLatest')
 const { timer } = require('rxjs/observable/timer')
@@ -16,6 +17,7 @@ const { of } = require('rxjs/observable/of')
 const fs = require('fs')
 const { fetchUserData$ } = require('./src/fetchUserData')
 const { processUserData } = require('./src/processUserData')
+const { calculateBests } = require('./src/calculateBests')
 const { db } = require('./src/initFirebase')
 const { logger } = require('./src/logger')
 
@@ -47,6 +49,7 @@ combineLatest(users$, timer$)
     mergeMap((user) => fetchUserData$(user)),
     filter(({ data }) => data.error === undefined),
     map(({ data }) => processUserData(data)),
+    tap((user) => calculateBests(user)),
     retry()
   )
   .subscribe()

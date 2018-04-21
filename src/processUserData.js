@@ -18,6 +18,8 @@ const processUserData = (data) => {
       () => logger.info(`${epicUserHandle} processed`),
       () => logger.error(`${epicUserHandle} failed to process`)
     )
+
+  return epicUserHandle
 }
 
 module.exports = { processUserData }
