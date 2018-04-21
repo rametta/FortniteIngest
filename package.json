@@ -2,9 +2,9 @@
   "name": "fortnite-ingest-node",
   "version": "1.0.0",
   "description": "Ingest Fortnite data via API",
-  "main": "ingest.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node ingest.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jason Rametta <rametta@outlook.com>",
@@ -13,7 +13,16 @@
     "axios": "^0.18.0",
     "dotenv": "^5.0.1",
     "firebase-admin": "^5.9.1",
+    "moment": "^2.22.1",
     "rxjs": "^5.5.6",
     "winston": "^2.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.0.1"
   }
 }

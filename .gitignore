@@ -61,3 +61,4 @@ typings/
 .next
 
 firebase-admin-creds.json
+.vscode
