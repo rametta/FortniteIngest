@@ -1,10 +1,10 @@
 const admin = require('firebase-admin')
+const { FIREBASE_DB_URL } = require('./constants')
 const firebaseServiceAccount = require('../firebase-admin-creds.json')
-const firebaseDbUrl = 'https://fortnite-ingest.firebaseio.com/'
 
 admin.initializeApp({
   credential: admin.credential.cert(firebaseServiceAccount),
-  databaseURL: firebaseDbUrl,
+  databaseURL: FIREBASE_DB_URL,
   databaseAuthVariableOverride: {
     uid: process.env.FIREBASE_AUTH_OVERRIDE
   }
