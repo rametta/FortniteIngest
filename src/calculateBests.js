@@ -1,5 +1,6 @@
-const { db } = require('./initFirebase')
 const moment = require('moment')
+const regression = require('regression')
+const { db } = require('./initFirebase')
 
 const calculateBests = (user) => {
   const matchesRef = db.ref(`/matches/${user}`)
@@ -16,12 +17,19 @@ const calculateBests = (user) => {
     }
 
     // weeks
+
+    const regressionByWeek = {}
+
     const matchesByWeek = matches.reduce((acc, m) => {
       const year = moment(m.d).year()
       const week = moment(m.d).week()
 
       if (!acc[year]) {
         acc[year] = {}
+      }
+
+      if (!regressionByWeek[year]) {
+        regressionByWeek[year] = {}
       }
 
       if (!acc[year][week]) {
@@ -37,9 +45,22 @@ const calculateBests = (user) => {
           t10: 0, // top 10
           t12: 0, // top 12
           t25: 0, // top 25
-          wp: 0 // win %
+          wp: 0, // win %,
+          lr: {
+            gradient: 0,
+            yIntercept: 0
+          } // linear regression
         }
       }
+
+      if (!regressionByWeek[year][week]) {
+        regressionByWeek[year][week] = []
+      }
+
+      regressionByWeek[year][week].push([
+        regressionByWeek[year][week].length + 1,
+        m.k || 0
+      ])
 
       const summary = acc[year][week]
 
@@ -55,6 +76,13 @@ const calculateBests = (user) => {
       summary.t25 += m.t25 || 0
       summary.kpm = (summary.k / summary.mp).toFixed(6) || 0
       summary.wp = (summary.t1 / summary.mp).toFixed(6) || 0
+
+      const [gradient, yIntercept] = regression.linear(
+        regressionByWeek[year][week]
+      ).equation
+
+      summary.lr.gradient = gradient
+      summary.lr.yIntercept = yIntercept
 
       return acc
     }, {})
