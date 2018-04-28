@@ -84,7 +84,9 @@ const weeklySummary = (matches, user) => {
 
 const dailySummary = (matches, user) => {
   const dailyMap = matches.reduce((acc, m) => {
-    const date = moment(m.d).format('MMDDYYYY')
+    const date = moment(m.d)
+      .utcOffset(moment(m.d).isDST() ? -240 : -300)
+      .format('MMDDYYYY')
 
     if (!acc[date]) {
       acc[date] = {
