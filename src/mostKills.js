@@ -1,8 +1,11 @@
-const mostKills = (matches) => {
-  const kills = matches.map((m) => m.k)
-  const mostKills = Math.max(...kills)
-  const matchKills = matches.find((m) => m.k === mostKills)
-  return matchKills
-}
+const { map, max, find, propEq, compose } = require('ramda')
+
+const getArrMax = (arr) => max(...arr)
+
+const findMost = (matches) => (mostKills) =>
+  find(propEq('k', mostKills))(matches)
+
+const mostKills = (matches) =>
+  compose(findMost(matches), getArrMax, map((m) => m.k))(matches)
 
 module.exports = { mostKills }

@@ -1,18 +1,17 @@
+const { values } = require('ramda')
 const { db } = require('./initFirebase')
 const { mostKills } = require('./mostKills')
 const { weeklySummary } = require('./weeklySummary')
 
 const calculateBests = (user) => {
   db.ref(`/matches/${user}`).once('value', (snap) => {
-    const matches = Object.values(snap.val())
+    const matches = values(snap.val())
 
     const weeklyMap = weeklySummary(matches)
     const kills = mostKills(matches)
 
     db.ref(`weeklySummary/${user}`).set(weeklyMap)
-    if (kills) {
-      db.ref(`/bests/${user}/kills`).set(kills)
-    }
+    kills && db.ref(`/bests/${user}/kills`).set(kills)
   })
 }
 
