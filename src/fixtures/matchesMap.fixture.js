@@ -1,4 +1,4 @@
-const matchesMap = {
+const matchesMapFixture = {
   '154338092': {
     c: -54.1,
     d: '2018-04-20T02:43:56Z',
@@ -528,4 +528,4 @@ const matchesMap = {
   }
 }
 
-module.export = { matchesMap }
+module.exports = { matchesMapFixture }

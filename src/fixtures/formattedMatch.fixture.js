@@ -1,4 +1,4 @@
-const formattedMatch = {
+const formattedMatchFixture = {
   mid: 190335778,
   k: 6,
   p: 'p10',
@@ -16,4 +16,4 @@ const formattedMatch = {
   c: 129.52100000000002
 }
 
-module.exports = { formattedMatch }
+module.exports = { formattedMatchFixture }
