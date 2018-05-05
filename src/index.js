@@ -1,5 +1,3 @@
-'use strict'
-
 require('dotenv').config()
 const { Observable } = require('rxjs/Observable')
 const {
@@ -15,11 +13,11 @@ const { combineLatest } = require('rxjs/observable/combineLatest')
 const { timer } = require('rxjs/observable/timer')
 const { of } = require('rxjs/observable/of')
 const fs = require('fs')
-const { fetchUserData$ } = require('./src/fetchUserData')
-const { processUserData } = require('./src/processUserData')
-const { calculateBests } = require('./src/calculateBests')
-const { db } = require('./src/initFirebase')
-const { logger } = require('./src/logger')
+const { fetchUserData$ } = require('./fetchUserData')
+const { processUserData } = require('./processUserData')
+const { calculateBests } = require('./calculateBests')
+const { db } = require('./initFirebase')
+const { logger } = require('./logger')
 
 const USER_DELAY_INTERVAL = process.env.USER_DELAY_INTERVAL || 3000
 const REFRESH_INTERVAL = process.env.REFRESH_INTERVAL || 3000
