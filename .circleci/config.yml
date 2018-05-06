@@ -30,9 +30,9 @@ jobs:
         
       - run:
           name: Run tests
-          command: npm run test
+          command: npm run test -- --testResultsProcessor="jest-junit"
           environment:
-            JEST_JUNIT_OUTPUT: ../reports/jest/results.xml
+            JEST_JUNIT_OUTPUT: reports/jest/results.xml
 
       - store_artifacts:
           path: coverage
