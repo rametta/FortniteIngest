@@ -1,6 +1,6 @@
 const unformattedMatchFixture = {
   accountId: '624dcaa2-1a46-48a1-bdab-fca021935a93',
-  dateCollected: '2018-05-04T03:11:50.933',
+  dateCollected: '2018-05-04T03:11:50.933-04:00',
   id: 190335778,
   kills: 6,
   matches: 1,
