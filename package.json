@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test":
-      "jest --coverage --coverageReporters=text-lcov --ci --testResultsProcessor=\"jest-junit\""
+    "test": "jest --coverage --ci --testResultsProcessor=\"jest-junit\""
   },
   "author": "Jason Rametta <rametta@outlook.com>",
   "license": "ISC",
