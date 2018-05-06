@@ -62,3 +62,5 @@ typings/
 
 firebase-admin-creds.json
 .vscode
+
+junit.xml

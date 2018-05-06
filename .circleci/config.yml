@@ -30,7 +30,9 @@ jobs:
         
       - run:
           name: Run tests
-          command: npm run test
+          command: |
+            npm run test
+            cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
           environment:
             JEST_JUNIT_OUTPUT: reports/jest/results.xml
 

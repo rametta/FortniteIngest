@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "jest --coverage --ci --testResultsProcessor=\"jest-junit\""
+    "test":
+      "jest --coverage --coverageReporters=text-lcov --ci --testResultsProcessor=\"jest-junit\""
   },
   "author": "Jason Rametta <rametta@outlook.com>",
   "license": "ISC",
@@ -20,6 +21,7 @@
     "winston": "^2.4.0"
   },
   "devDependencies": {
+    "coveralls": "^3.0.1",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.11.0",
