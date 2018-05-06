@@ -24,7 +24,7 @@ describe('Data transformation utilities', () => {
 
   test('it should return the match that has the highest kills', () => {
     const matches = values(matchesMapFixture)
-    expect(mostKills(matches).k).toEqual(8)
+    expect(mostKills(matches).k).toBe(8)
   })
 
   test('it should reduce matches into a weekly summary', () => {

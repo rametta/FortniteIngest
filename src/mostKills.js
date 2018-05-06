@@ -1,6 +1,6 @@
-const { map, max, find, propEq, compose } = require('ramda')
+const { map, find, propEq, compose } = require('ramda')
 
-const getArrMax = (arr) => max(...arr)
+const getArrMax = (arr) => Math.max(...arr)
 
 const findMost = (matches) => (mostKills) =>
   find(propEq('k', mostKills))(matches)
