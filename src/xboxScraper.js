@@ -44,28 +44,32 @@ db.ref(`usersV2`).once('value', (snap) => {
             .format()
         })
       })
-      .catch(() =>
+      .catch(() => {
         logger.error(
           `Could not fetch Xbox profile for user ${usersMap[id].xboxGt}`
         )
-      )
+      })
   })
 
   // Update game clips
-  userIds.forEach((id) => {
-    const url = `${XBOX_API_URL}/${id}/game-clips/267695549`
-    axios
-      .get(url, { headers })
-      .then(({ data }) => {
-        data.forEach((c) => {
-          const clip = trimClip(c)
-          db.ref(`clips/${usersMap[id].xboxGt}/${clip.id}`).set(clip)
+  // Wait 10 seconds before making requests
+  // to avoid getting blocked
+  setTimeout(() => {
+    userIds.forEach((id) => {
+      const url = `${XBOX_API_URL}/${id}/game-clips/267695549`
+      axios
+        .get(url, { headers })
+        .then(({ data }) => {
+          data.forEach((c) => {
+            const clip = trimClip(c)
+            db.ref(`clips/${usersMap[id].xboxGt}/${clip.id}`).set(clip)
+          })
         })
-      })
-      .catch(() =>
-        logger.error(
-          `Could not fetch Game Clips for user ${usersMap[id].xboxGt}`
-        )
-      )
-  })
+        .catch(() => {
+          logger.error(
+            `Could not fetch Game Clips for user ${usersMap[id].xboxGt}`
+          )
+        })
+    })
+  }, 10000)
 })

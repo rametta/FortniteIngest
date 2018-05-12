@@ -11,7 +11,7 @@ const logger = new winston.Logger({
       colorize: true
     }),
     new winston.transports.File({
-      filename: `/${LOGS_DIR}/results.log`,
+      filename: `${LOGS_DIR}/results.log`,
       timestamp: tsFormat,
       level: NODE_ENV === 'development' ? 'debug' : 'info'
     })
