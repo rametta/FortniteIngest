@@ -1,5 +1,6 @@
 const winston = require('winston')
 const moment = require('moment')
+const { LOGS_DIR, NODE_ENV } = require('./constants')
 
 const tsFormat = () => moment.utc().format('llll')
 
@@ -10,9 +11,9 @@ const logger = new winston.Logger({
       colorize: true
     }),
     new winston.transports.File({
-      filename: `${process.env.LOGS_DIR}/results.log`,
+      filename: `/${LOGS_DIR}/results.log`,
       timestamp: tsFormat,
-      level: process.env.NODE_ENV === 'development' ? 'debug' : 'info'
+      level: NODE_ENV === 'development' ? 'debug' : 'info'
     })
   ]
 })

@@ -1,4 +1,3 @@
-require('dotenv').config()
 const { Observable } = require('rxjs/Observable')
 const {
   mergeMap,
@@ -18,12 +17,10 @@ const { processUserData } = require('./processUserData')
 const { calculateBests } = require('./calculateBests')
 const { db } = require('./initFirebase')
 const { logger } = require('./logger')
+const constants = require('./constants')
 
-const USER_DELAY_INTERVAL = process.env.USER_DELAY_INTERVAL || 3000
-const REFRESH_INTERVAL = process.env.REFRESH_INTERVAL || 3000
-
-if (!fs.existsSync(process.env.LOGS_DIR)) {
-  fs.mkdirSync(process.env.LOGS_DIR)
+if (!fs.existsSync(constants.LOGS_DIR)) {
+  fs.mkdirSync(constants.LOGS_DIR)
   logger.info(`Creating logs directory`)
 }
 
@@ -38,12 +35,12 @@ const users$ = Observable.create((observer) => {
   })
 })
 
-const timer$ = timer(0, REFRESH_INTERVAL)
+const timer$ = timer(0, constants.REFRESH_INTERVAL)
 
 combineLatest(users$, timer$)
   .pipe(
     mergeMap(([users]) => users),
-    concatMap((users) => of(users).pipe(delay(USER_DELAY_INTERVAL))),
+    concatMap((users) => of(users).pipe(delay(constants.USER_DELAY_INTERVAL))),
     mergeMap((user) => fetchUserData$(user)),
     filter(({ data }) => data.error === undefined),
     map(({ data }) => processUserData(data)),
