@@ -63,7 +63,9 @@ db.ref(`usersV2`).once('value', (snap) => {
         })
       })
       .catch(() =>
-        logger(`Could not fetch Game Clips for user ${usersMap[id].xboxGt}`)
+        logger.error(
+          `Could not fetch Game Clips for user ${usersMap[id].xboxGt}`
+        )
       )
   })
 })
