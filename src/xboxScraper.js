@@ -36,11 +36,10 @@ db.ref(`xboxUsers`).once('value', (snap) => {
   let count = 0
 
   users.forEach((user) => {
-    count++
-
-    logger.log(`Fetching clips for user ${user}`)
+    logger.info(`Fetching clips for user ${user}`)
     getData(usersMap[user].xuid)
       .then(({ data }) => {
+        count++
         const clips = data.reduce((acc, c) => {
           const clip = trimClip(c)
           acc[clip.id] = clip
@@ -54,8 +53,10 @@ db.ref(`xboxUsers`).once('value', (snap) => {
           app.delete()
         }
       })
-      .catch(() => {
-        logger.error(`Could not fetch Game Clips for user ${user}`)
+      .catch((err) => {
+        logger.error(
+          err.message || `Could not fetch Game Clips for user ${user}`
+        )
       })
   })
 })
