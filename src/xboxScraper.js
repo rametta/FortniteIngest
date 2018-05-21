@@ -1,4 +1,4 @@
-const { db } = require('./initFirebase')
+const { db, app } = require('./initFirebase')
 const { keys } = require('ramda')
 const axios = require('axios')
 const { XBOX_API_URL, XBOX_API_KEY } = require('./constants')
@@ -25,51 +25,37 @@ const trimClip = (clip) => ({
     .format()
 })
 
-db.ref(`usersV2`).once('value', (snap) => {
-  const usersMap = snap.val()
-  const userIds = keys(usersMap)
+const getUrl = (id) => `${XBOX_API_URL}/${id}/game-clips/267695549`
 
-  // Update user profiles
-  userIds.forEach((id) => {
-    const url = `${XBOX_API_URL}/${id}/profile`
-    axios
-      .get(url, { headers })
+const getData = (id) => axios.get(getUrl(id), { headers })
+
+db.ref(`xboxUsers`).once('value', (snap) => {
+  const usersMap = snap.val()
+  const users = keys(usersMap)
+
+  let count = 0
+
+  users.forEach((user) => {
+    count++
+
+    logger.log(`Fetching clips for user ${user}`)
+    getData(usersMap[user].xuid)
       .then(({ data }) => {
-        db.ref(`usersV2/${id}`).set({
-          xboxGt: data.Gamertag,
-          xboxScore: data.Gamerscore,
-          xboxPic: data.GameDisplayPicRaw,
-          lastUpdate: moment()
-            .utc()
-            .format()
-        })
+        const clips = data.reduce((acc, c) => {
+          const clip = trimClip(c)
+          acc[clip.id] = clip
+          return acc
+        }, {})
+        db.ref(`clips/${user}`).set(clips)
+
+        // Free up resources when all users are processed
+        // to prevent memory leak because app will never quit
+        if (count === users.length) {
+          app.delete()
+        }
       })
       .catch(() => {
-        logger.error(
-          `Could not fetch Xbox profile for user ${usersMap[id].xboxGt}`
-        )
+        logger.error(`Could not fetch Game Clips for user ${user}`)
       })
   })
-
-  // Update game clips
-  // Wait 10 seconds before making requests
-  // to avoid getting blocked
-  setTimeout(() => {
-    userIds.forEach((id) => {
-      const url = `${XBOX_API_URL}/${id}/game-clips/267695549`
-      axios
-        .get(url, { headers })
-        .then(({ data }) => {
-          data.forEach((c) => {
-            const clip = trimClip(c)
-            db.ref(`clips/${usersMap[id].xboxGt}/${clip.id}`).set(clip)
-          })
-        })
-        .catch(() => {
-          logger.error(
-            `Could not fetch Game Clips for user ${usersMap[id].xboxGt}`
-          )
-        })
-    })
-  }, 10000)
 })
