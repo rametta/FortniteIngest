@@ -1,5 +1,6 @@
 const moment = require('moment')
 
+// formatMatch :: EpicMatch -> Match
 const formatMatch = (match) => ({
   mid: match.id || 0,
   k: match.kills || 0,
